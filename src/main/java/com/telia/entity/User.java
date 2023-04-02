@@ -1,15 +1,9 @@
 package com.telia.entity;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-import jakarta.validation.constraints.Email;
-import jakarta.validation.constraints.NotEmpty;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.NonNull;
 
 import java.io.Serializable;
 import java.time.LocalDate;
@@ -19,18 +13,23 @@ import java.time.LocalDate;
 @Entity
 @Table(name = "users")
 public class User implements Serializable {
+
     @Id
-    @Column(name = "personal_number")
-    private Long personalNumber;
-    @Column(name = "full_name")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Integer id;
+
+    @Column(name = "personal_number", unique = true, nullable = false, updatable = false)
+    private String personalNumber;
+
+    @Column(name = "full_name", nullable = false)
     private String fullName;
-    @Column(name = "date_of_birth")
+
+    @Column(name = "birth_date", nullable = false)
     private LocalDate birthDate;
 
-    @Column(name = "email_address")
-    @NotEmpty(message = "Email address is required")
-    @Email(message = "Invalid email address")
+    @Column(name = "email_address", nullable = false, unique = true)
     private String emailAddress;
-    @Column(name = "phone_number")
+
+    @Column(name = "phone_number", nullable = false)
     private String phoneNumber;
 }
