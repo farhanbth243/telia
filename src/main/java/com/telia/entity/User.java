@@ -14,15 +14,6 @@ import java.time.LocalDate;
 @Table(name = "users")
 public class User implements Serializable {
 
-    public User(String personalNumber, String fullName, LocalDate birthDate, String emailAddress, String phoneNumber) {
-        this.id = id;
-        this.personalNumber = personalNumber;
-        this.fullName = fullName;
-        this.birthDate = birthDate;
-        this.emailAddress = emailAddress;
-        this.phoneNumber = phoneNumber;
-    }
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Integer id;
