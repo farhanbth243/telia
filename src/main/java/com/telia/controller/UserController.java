@@ -2,6 +2,7 @@ package com.telia.controller;
 
 import com.telia.entity.User;
 import com.telia.service.UserService;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -12,6 +13,7 @@ import java.util.List;
 @RestController
 @RequestMapping("/users")
 public class UserController {
+    @Autowired
     private final UserService userService;
 
     public UserController(UserService userService) {
@@ -29,11 +31,6 @@ public class UserController {
 
         List<User> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
-    }
-
-    @GetMapping("/{personalNumber}")
-    public User getUser(@PathVariable String personalNumber) throws ResponseStatusException {
-        return userService.getUserByPersonalNumber(personalNumber);
     }
 
     @PutMapping("/{personalNumber}")

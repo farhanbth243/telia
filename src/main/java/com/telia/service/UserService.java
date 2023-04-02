@@ -13,7 +13,6 @@ import java.util.Optional;
 
 @Service
 public class UserService {
-
     @Autowired
     private UserRepository userRepository;
 
@@ -25,14 +24,6 @@ public class UserService {
 
         // Save new user
         return userRepository.save(user);
-    }
-
-    public User getUserByPersonalNumber(String personalNumber) throws ResponseStatusException {
-        User user = userRepository.findByPersonalNumber(personalNumber)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User not found with id: " + personalNumber));
-        user.setPhoneNumber(null);
-        user.setEmailAddress(null);
-        return user;
     }
 
     public List<User> getAllUsers() {
@@ -48,9 +39,8 @@ public class UserService {
         userRepository.findByPersonalNumber(personalNumber)
                 .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with personal number " + personalNumber + " not found"));
 
-        User user = getUserByPersonalNumber(personalNumber);
-
-        userRepository.deleteById(user.getId());
+        Optional<User> user = userRepository.findByPersonalNumber(personalNumber);
+        user.ifPresent(value -> userRepository.deleteById(value.getId()));
     }
 
     public User updateUser(String personalNumber, User user) {
@@ -67,8 +57,9 @@ public class UserService {
     }
 
     public List<User> getAllUsersSortedByName(String direction) {
-        Sort.Direction sortDirection = direction.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
-        List<User> users = userRepository.findAll(Sort.by(sortDirection, "full_name"));
+        List<User> users = direction.equals("asc")
+                ? userRepository.findAll(Sort.by("fullName").ascending())
+                : userRepository.findAll(Sort.by("fullName").descending());
         for (User user : users) {
             user.setPhoneNumber(null);
             user.setEmailAddress(null);
@@ -77,8 +68,9 @@ public class UserService {
     }
 
     public List<User> getAllUsersSortedByPersonalNumber(String direction) {
-        Sort.Direction sortDirection = direction.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
-        List<User> users = userRepository.findAll(Sort.by(sortDirection, "personal_number"));
+        List<User> users = direction.equals("asc")
+                ? userRepository.findAll(Sort.by("personalNumber").ascending())
+                : userRepository.findAll(Sort.by("personalNumber").descending());
         for (User user : users) {
             user.setPhoneNumber(null);
             user.setEmailAddress(null);
