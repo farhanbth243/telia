@@ -9,7 +9,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 
 @Service
 public class UserService {
@@ -17,8 +16,8 @@ public class UserService {
     private UserRepository userRepository;
 
     public User createUser(User user) throws ResponseStatusException {
-        Optional<User> existingUser = userRepository.findByPersonalNumber(user.getPersonalNumber());
-        if (existingUser.isPresent()) {
+        User existingUser = userRepository.findByPersonalNumber(user.getPersonalNumber());
+        if (existingUser!=null) {
             throw new ResponseStatusException(HttpStatus.ALREADY_REPORTED, "User with personal number " + user.getPersonalNumber() + " already exists");
         }
 
@@ -36,16 +35,20 @@ public class UserService {
     }
 
     public void deleteUser(String personalNumber) throws ResponseStatusException {
-        userRepository.findByPersonalNumber(personalNumber)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with personal number " + personalNumber + " not found"));
+        User existingUser = userRepository.findByPersonalNumber(personalNumber);
+        if (existingUser==null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with personal number " + personalNumber + " not found");
+        }
 
-        Optional<User> user = userRepository.findByPersonalNumber(personalNumber);
-        user.ifPresent(value -> userRepository.deleteById(value.getId()));
+        User user = userRepository.findByPersonalNumber(personalNumber);
+        userRepository.deleteById(user.getId());
     }
 
     public User updateUser(String personalNumber, User user) {
-        User existingUser = userRepository.findByPersonalNumber(personalNumber)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "User with personal number " + personalNumber + " not found"));
+        User existingUser = userRepository.findByPersonalNumber(personalNumber);
+        if (existingUser==null) {
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with personal number " + personalNumber + " not found");
+        }
 
         existingUser.setPersonalNumber(user.getPersonalNumber());
         existingUser.setFullName(user.getFullName());
