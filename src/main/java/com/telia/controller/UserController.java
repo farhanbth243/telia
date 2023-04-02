@@ -48,11 +48,13 @@ public class UserController {
         return ResponseEntity.noContent().build();
     }
 
-    @GetMapping("/filter")
-    public List<User> filterUsersByNameAndPersonalNumber(
-            @RequestParam(required = false) String name,
-            @RequestParam(required = false) String personalNumber,
-            @RequestParam(defaultValue = "asc") String sort) {
-        return userService.findAll(name, personalNumber, sort);
+    @GetMapping("/users/sort-by-name")
+    public List<User> getAllUsersSortedByName(@RequestParam(defaultValue = "asc") String sort) {
+        return userService.getAllUsersSortedByName(sort);
+    }
+
+    @GetMapping("/users/sort-by-personal-number")
+    public List<User> getAllUsersSortedByPersonalNumber(@RequestParam(defaultValue = "asc") String sort) {
+        return userService.getAllUsersSortedByPersonalNumber(sort);
     }
 }

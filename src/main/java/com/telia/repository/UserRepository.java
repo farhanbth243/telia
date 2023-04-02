@@ -9,8 +9,4 @@ import java.util.Optional;
 
 public interface UserRepository extends JpaRepository<User,Integer> {
     Optional<User> findByPersonalNumber(String personalNumber);
-
-    List<User> findAllByFullNameContainingIgnoreCaseAndPersonalNumber(String name, String personalNumber, Sort sort);
-
-    List<User> findAllByFullNameContainingIgnoreCase(String name, Sort sort);
 }

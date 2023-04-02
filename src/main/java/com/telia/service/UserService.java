@@ -20,7 +20,7 @@ public class UserService {
     public User createUser(User user) throws ResponseStatusException {
         Optional<User> existingUser = userRepository.findByPersonalNumber(user.getPersonalNumber());
         if (existingUser.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "User with personal number " + user.getPersonalNumber() + " already exists");
+            throw new ResponseStatusException(HttpStatus.ALREADY_REPORTED, "User with personal number " + user.getPersonalNumber() + " already exists");
         }
 
         // Save new user
@@ -66,12 +66,25 @@ public class UserService {
         return userRepository.save(existingUser);
     }
 
-    public List<User> findAll(String name, String personalNumber, String direction) {
+    public List<User> getAllUsersSortedByName(String direction) {
         Sort.Direction sortDirection = direction.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Sort sort = Sort.by(sortDirection, "fullName");
-        if (personalNumber != null) {
-            return userRepository.findAllByFullNameContainingIgnoreCaseAndPersonalNumber(name, personalNumber, sort);
+        Sort sort = Sort.by(sortDirection, "full_name");
+        List<User> users = userRepository.findAll(sort);
+        for (User user : users) {
+            user.setPhoneNumber(null);
+            user.setEmailAddress(null);
         }
-        return userRepository.findAllByFullNameContainingIgnoreCase(name, sort);
+        return users;
+    }
+
+    public List<User> getAllUsersSortedByPersonalNumber(String direction) {
+        Sort.Direction sortDirection = direction.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
+        Sort sort = Sort.by(sortDirection, "personal_number");
+        List<User> users = userRepository.findAll(sort);
+        for (User user : users) {
+            user.setPhoneNumber(null);
+            user.setEmailAddress(null);
+        }
+        return users;
     }
 }
