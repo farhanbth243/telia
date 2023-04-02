@@ -1,64 +1,58 @@
 package com.telia.controller;
 
 import com.telia.entity.User;
-import com.telia.repository.UserRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import com.telia.service.UserService;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 
 import java.util.List;
-import java.util.Optional;
 
 @RestController
+@RequestMapping("/users")
 public class UserController {
-    @Autowired
-    private UserRepository repository;
+    private final UserService userService;
 
-    @PostMapping("/createUser")
-    public User createUser(@RequestBody User user) {
-        // Check if user with same personal number already exists
-        Optional<User> existingUser = repository.findByPersonalNumber(user.getPersonalNumber());
-        if (existingUser.isPresent()) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "User with personal number " + user.getPersonalNumber() + " already exists");
-        }
-
-        // Save new user
-        return repository.save(user);
+    public UserController(UserService userService) {
+        this.userService = userService;
     }
 
-    @PostMapping("/createUsers")
-    public List<User> addUsers(@RequestBody List<User> users) {
-        return repository.saveAll(users);
+    @PostMapping
+    public ResponseEntity<User> createUser(@RequestBody User user) {
+        User createdUser = userService.createUser(user);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdUser);
     }
 
-    @GetMapping("users")
-    public List<User> getUsers() {
-        return repository.findAll();
+    @GetMapping()
+    public ResponseEntity<List<User>> getUsers() {
+
+        List<User> users = userService.getAllUsers();
+        return ResponseEntity.ok(users);
     }
 
-    @GetMapping("users/{personalNumber}")
-    public User getUser(@PathVariable Long personalNumber) {
-        return repository.findByPersonalNumber(personalNumber)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
+    @GetMapping("/{personalNumber}")
+    public User getUser(@PathVariable String personalNumber) throws ResponseStatusException {
+        return userService.getUserByPersonalNumber(personalNumber);
     }
 
-    @PutMapping("/update/{personalNumber}")
-    public User updateUser(@PathVariable int personalNumber, @RequestBody User user) {
-        User existingUser = repository.findById(personalNumber)
-                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND));
-
-        existingUser.setPersonalNumber(user.getPersonalNumber());
-        existingUser.setFullName(user.getFullName());
-        existingUser.setBirthDate(user.getBirthDate());
-        existingUser.setEmailAddress(user.getEmailAddress());
-        existingUser.setPhoneNumber(user.getPhoneNumber());
-
-        return repository.save(existingUser);
+    @PutMapping("/{personalNumber}")
+    public ResponseEntity<User> updateUser(@PathVariable String personalNumber, @RequestBody User user) {
+        User updatedUser = userService.updateUser(personalNumber, user);
+        return ResponseEntity.ok(updatedUser);
     }
 
-    @DeleteMapping("/delete/{personalNumber}")
-    public void deleteUser(@PathVariable int personalNumber) {
-        repository.deleteById(personalNumber);
+    @DeleteMapping("/{personalNumber}")
+    public ResponseEntity<Void> deleteUser(@PathVariable String personalNumber) throws ResponseStatusException {
+        userService.deleteUser(personalNumber);
+        return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/filter")
+    public List<User> filterUsersByNameAndPersonalNumber(
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String personalNumber,
+            @RequestParam(defaultValue = "asc") String sort) {
+        return userService.findAll(name, personalNumber, sort);
     }
 }
