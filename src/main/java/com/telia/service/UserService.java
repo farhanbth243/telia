@@ -68,8 +68,7 @@ public class UserService {
 
     public List<User> getAllUsersSortedByName(String direction) {
         Sort.Direction sortDirection = direction.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Sort sort = Sort.by(sortDirection, "full_name");
-        List<User> users = userRepository.findAll(sort);
+        List<User> users = userRepository.findAll(Sort.by(sortDirection, "full_name"));
         for (User user : users) {
             user.setPhoneNumber(null);
             user.setEmailAddress(null);
@@ -79,8 +78,7 @@ public class UserService {
 
     public List<User> getAllUsersSortedByPersonalNumber(String direction) {
         Sort.Direction sortDirection = direction.equals("asc") ? Sort.Direction.ASC : Sort.Direction.DESC;
-        Sort sort = Sort.by(sortDirection, "personal_number");
-        List<User> users = userRepository.findAll(sort);
+        List<User> users = userRepository.findAll(Sort.by(sortDirection, "personal_number"));
         for (User user : users) {
             user.setPhoneNumber(null);
             user.setEmailAddress(null);
